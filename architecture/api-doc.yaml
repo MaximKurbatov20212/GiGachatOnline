@@ -1,0 +1,762 @@
+openapi: 3.0.3
+
+info:
+  title: Гигачат Онлайн 3.0
+  description: |-
+    Приложение для составления программы тренировок, отслеживания и публикации прогресса, отслеживания прогресса других пользователей с комментариями и оценками, с возможностью написать сообщение понравившемуся спортсмену.
+  contact:
+    email: m.kurbatov@g.nsu.ru
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080/api/v1
+tags:
+  - name: User
+    description: Пользователь приложения
+  - name: Dish
+    description: Название блюда
+  - name: DishSchedule
+    description: Расписание према пищи
+  - name: DishNote
+    description: Блюдо вместе с его характеристиками
+  - name: Training
+    description: Отчет о тренировке с подробной информацией 
+  - name: TrainingSchedule
+    description: Схема упражнений и количеством подходов
+  - name: TrainingNote
+    description: Упражнение вместе с его характеристиками
+  - name: SportExercise
+    description: Упражнение
+  - name: Comment
+    description: Комментарий к отчету о тренировке
+  - name: Like
+    description: Реакция на отчет о тренировке
+
+security:
+- app_id: []
+
+paths:
+  /users:
+    post:
+      summary: Отправить данные о пользователе
+      tags:
+        - User
+      operationId: postUser
+      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200' : 
+          description: Успешный ответ с данными о пользователе
+        '405':
+          description: Invalid input
+
+  /users/{id}:
+    delete:
+      summary: Удалить пользователя
+      tags:
+        - User
+      operationId: deleteUserById
+      parameters: 
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200' : 
+          description: Успешное удаление
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: User not found
+          
+  /friends/{id}:
+    get:
+      summary: Получить всех друзей пользователя
+      tags:
+        - User
+      operationId: getFrineds
+      parameters: 
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200' : 
+          description: Успешный ответ с данными о друзьях
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Logins'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: User not found
+          
+  /dishes:
+    get:
+      summary: Получить список доступных блюд
+      tags:
+        - Dish
+      operationId: getDishes
+      responses:
+        '200': 
+          description: Успешный ответ со списоком блюд
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dishes'
+ 
+  /dishSchedules/{dishId}:
+    get:
+      summary: Получить меню блюд
+      tags:
+        - DishSchedule
+      operationId: getDishShedule
+      parameters: 
+        - name: dishId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Успешный ответ с данными о меню
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DishScheduleInfos'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: DishSchedule not found
+    
+  /dishSchedules:
+    post:
+      summary: Отправить меню блюд
+      tags:
+        - DishSchedule
+      operationId: postDishShedule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DishScheduleInfo'
+      responses:
+        '200':
+          description: Успешное добавление
+        '405':
+          description: Invalid input  
+  
+  /dishSchedules/{id}:
+    delete:
+      summary: Удалить меню блюд
+      tags:
+        - DishSchedule
+      operationId: deleteDishShedule
+      parameters: 
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Успешное удаление
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: DishSchedule not found
+
+  /trainingSchedules/{scheduleId}:
+    get:
+      summary: Получить схему тренировки
+      tags:
+        - TrainingSchedule
+      operationId: getTrainingSchedule
+      parameters: 
+        - name: scheduleId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description:  Успешный ответ с данными о меню
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingScheduleInfo'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: TrainingSchedule not found
+    
+  /trainingSchedules:
+    post:
+      summary: Отправить схему тренировки
+      tags:
+        - TrainingSchedule
+      operationId: postDishSchedule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingScheduleInfo'
+      responses:
+        '200':
+          description: Успешное добавление
+        '405':
+          description: Invalid input
+  
+  /trainingSchedules/{id}:
+    delete:
+      summary: Удалить схему тренировки
+      tags:
+        - TrainingSchedule
+      operationId: deleteTrainingSchedule
+      parameters: 
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Успешное удаление
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: TrainingSchedule not found
+  
+  /sportExercises:
+    get:
+      summary: Получить все названия спортивных упраженений
+      tags:
+        - SportExercise
+      operationId: getSportExercise
+      responses:
+        '200' : 
+          description: Успешный ответ с названиями спортивных упраженений
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SportExercises'
+        '405':
+          description: Invalid input
+  
+  /comments:
+    post:
+      summary: Отправить коммент
+      tags:
+        - Comment
+      operationId: postComment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+      responses:
+        '200':
+          description: Успешная отправка комментария
+        '405':
+          description: Invalid input
+  
+  /comments/{id}:    
+    delete:
+      summary: Удалить коммент
+      tags:
+        - Comment
+      operationId: deleteComment
+      parameters: 
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Успешное удаление
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Comment not found
+
+  /like:
+    post:
+      summary: Поставить лайк
+      tags:
+        - Like
+      operationId: postLike
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Like'
+      responses:
+        '200':
+          description: Успешный ответ с данными о лайке
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Like'
+  
+  /likes/{id}:
+    delete:
+      summary: Удалить лайк
+      tags:
+        - Like
+      operationId: deleteLike
+      parameters: 
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Успешный ответ с данными о лайке
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Like not found
+
+  /trainings/{id}:
+    get:
+      summary: Получить данные о тренировке
+      tags:
+        - Training
+      operationId: getTraining
+      parameters: 
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Успешный ответ с данными о тренировке
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingInfo'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Training not found
+          
+  /trainings:
+    post:
+      summary: Отправить данные о тренироке
+      tags:
+        - Training
+      operationId: postTraining
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingInfo'
+      responses:
+        '200':
+          description: Успешный ответ с данными о тренировке
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingInfo'
+        '405':
+          description: Invalid input
+
+  /comments/training/{id}:
+    get:
+      summary: Получить комментарии к отчету о тренировке
+      tags:
+        - Training
+      operationId: getCommentsByTrainingId
+      parameters: 
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Успешный ответ с данными о комментариях
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comments'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Training not found          
+  
+  /likes/training/{id}:
+    get:
+      summary: Получить лайки к отчету о тренировке
+      tags:
+        - Training
+      operationId: getLikesByTrainingId
+      parameters: 
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Успешный ответ с данными о лайках
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Likes'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Training not found               
+          
+  /dates/training/{userId}:
+    get:
+      summary: Получить дни, когда пользователь тренировался за конкретный месяц
+      tags:
+        - Training
+      operationId: getTriningDates
+      parameters: 
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+
+        - name: month
+          in: header
+          required: true
+          schema:
+            type: string
+            format: "YY:MM:DD"
+      responses:
+        '200':
+          description: Успешный ответ с датами
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trainings'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Training not found 
+  
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - login
+        - password
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+  
+    Users:
+      type: array
+      items: 
+         $ref: '#/components/schemas/User'
+    
+    Dish:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer
+        name: 
+          type: string
+    
+    Dishes:
+      type: array
+      items: 
+         $ref: '#/components/schemas/Dish'
+         
+    DishNote:
+      type: object
+      required:
+        - calories 
+        - quantity
+        - dishId
+        - dishScheduleId
+      properties:
+        dishSheduleId:
+          type: integer
+        calories:
+          type: integer
+        quantity:
+          type: integer
+        dishId:
+          type: integer        
+
+    DishNotes:
+      type: array
+      items: 
+         $ref: '#/components/schemas/DishNote'
+    
+    DishNoteInfo:
+      type: object
+      required:
+        - calories 
+        - quantity
+        - dish
+        - dishScheduleId
+      properties:
+        dishSheduleId:
+          type: integer
+        calories:
+          type: integer
+        quantity:
+          type: integer
+        dish:
+          $ref: '#/components/schemas/Dish'
+          
+    DishScheduleInfo:
+      type: object
+      required:
+        - id
+        - dishNotes
+        - userId
+      properties:
+        userId:
+          type: string    
+        id:
+          type: integer
+        dishNotes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DishNoteInfo'
+          
+    DishScheduleInfos:
+      type: array
+      items: 
+         $ref: '#/components/schemas/DishScheduleInfo'
+          
+    DishSchedule:
+      type: object
+      required:
+        - userId
+      properties:
+        id:
+          type: integer  
+        userId:
+          type: string         
+    
+    SportExercise:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer 
+        name:
+          type: integer
+    
+    SportExercises:
+      type: array
+      items: 
+         $ref: '#/components/schemas/SportExercise'    
+         
+    TrainingNote:
+      type: object
+      required:
+        - weight 
+        - repeating  
+        - sportExerciseId 
+        - trainingcheduleId 
+      properties:
+        id:
+          type: integer 
+        weight:
+          type: integer
+        repeating:
+          type: integer
+        sportExerciseId:
+          type: integer
+        trainingcheduleId:
+          type: integer
+    
+    TrainingSchedule:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer  
+        userId:
+          type: string
+    
+    
+    TrainingNoteInfo:
+      type: object
+      required:
+        - weight 
+        - repeating  
+        - sportExercise 
+        - trainingcheduleId 
+      properties:
+        id:
+          type: integer 
+        weight:
+          type: integer
+        repeating:
+          type: integer
+        sportExercise:
+          $ref: '#/components/schemas/SportExercise'
+        trainingcheduleId:
+          type: integer
+    
+    
+    TrainingScheduleInfo:
+      type: object
+      required:
+        - id
+        - trainingNotes
+        - userId
+      properties:
+        userId:
+          type: string    
+        id:
+          type: integer
+        trainingNotes:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrainingNoteInfo'
+    
+    Training:
+      type: object
+      required:
+        - activityName  
+        - date   
+        - url  
+        - userId 
+        - trainingScheduleId 
+        - dishScheduleId 
+      properties:
+        id:
+          type: integer 
+        activityName:
+          type: string
+        date:
+          type: string
+        url:
+          type: string
+        userId:
+          type: string 
+        trainingcheduleId:
+          type: integer
+        dishScheduleId:
+          type: integer
+    
+    TrainingInfo:
+      type: object
+      required:
+        - activityName  
+        - date   
+        - url  
+        - userId 
+        - trainingSchedule 
+        - dishSchedule
+      properties:
+        id:
+          type: integer 
+        activityName:
+          type: string
+        date:
+          type: string
+        url:
+          type: string
+        userId:
+          type: string 
+        trainingchedule:
+          $ref: '#/components/schemas/TrainingScheduleInfo'
+        dishSchedule:
+          $ref: '#/components/schemas/DishScheduleInfo'
+    
+    Trainings:
+      type: array
+      items: 
+         $ref: '#/components/schemas/Training'
+    
+    Like:
+      type: object
+      required:
+        - userId
+        - trainingId
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string           
+        trainingId:
+          type: integer
+    
+    Likes:
+      type: array
+      items: 
+         $ref: '#/components/schemas/Like'
+          
+    Comment:
+      type: object
+      required:
+        - text
+        - userId
+        - trainingId
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        userId:
+          type: string           
+        trainingId:
+          type: integer
+    
+    Comments:
+      type: array
+      items: 
+         $ref: '#/components/schemas/Comment'
+    
+    Login:
+      type: object
+      required:
+        - login
+      properties:
+        login:
+          type: string 
+          
+    Logins:
+      type: array
+      items: 
+         $ref: '#/components/schemas/Login'
+    
+    
+  securitySchemes:
+    app_id:
+      type: apiKey
+      description: API key to authorize requests.
+      name: appid
+      in: query
+      
+      
